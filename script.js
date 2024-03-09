@@ -66,11 +66,15 @@ class Flower {
 
 
 svg.addEventListener("mousedown", e => {
-  // clear the canvas
+ // Comenta o elimina el siguiente bloque de código para prevenir que se borren las flores al iniciar un nuevo dibujo
+  /*
   while (svg.lastChild) {
     svg.removeChild(svg.lastChild);
   }
+  */
   // if bool == true I can draw
+  const song = document.getElementById("song");
+  song.play();
   bool = true;
 });
 
@@ -154,6 +158,65 @@ function Frame() {
   }, 50);
 
   frames++;
+  rid = window.requestAnimationFrame(Frame);
+
+  if (frames >= points.length) {
+    window.cancelAnimationFrame(rid);
+    rid = null;
+    // Espera 2 segundos después de formar el círculo y luego limpia las flores
+    setTimeout(clearFlowers, 2000); // Ajusta el tiempo de espera si es necesario
+    return; // Sale de la función para evitar ejecuciones adicionales después de cancelar la animación
+  }
+
+  frames++;
 }
 
+
 Frame();
+document.addEventListener('keydown', function(e) {
+    if (e.key === "Escape") { // Verifica si la tecla presionada es Escape
+        while (svg.lastChild) { // Elimina todas las flores (hijos de svg)
+            svg.removeChild(svg.lastChild);
+        }
+        frames = 0; // Resetea el contador de frames para reiniciar la animación si se necesita
+        // Si quieres que la animación se reinicie automáticamente después de borrar, descomenta la siguiente línea
+        // Frame(); 
+    }
+});
+function clearFlowers() {
+    while (svg.lastChild) {
+      svg.removeChild(svg.lastChild);
+    }
+  }
+  svg.addEventListener("touchstart", function(e) {
+    e.preventDefault(); // Previene el comportamiento por defecto para eventos táctiles
+    const song = document.getElementById("song");
+    song.play();
+    bool = true;
+    // Convertir las coordenadas táctiles a coordenadas del SVG
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent("mousedown", {
+      clientX: touch.clientX,
+      clientY: touch.clientY
+    });
+    svg.dispatchEvent(mouseEvent);
+  }, false);
+  
+  svg.addEventListener("touchend", function(e) {
+    e.preventDefault(); // Previene el comportamiento por defecto para eventos táctiles
+    const mouseEvent = new MouseEvent("mouseup", {});
+    svg.dispatchEvent(mouseEvent);
+  }, false);
+  
+  svg.addEventListener("touchmove", function(e) {
+    e.preventDefault(); // Previene el comportamiento por defecto para eventos táctiles
+    if (bool) {
+      // Convertir las coordenadas táctiles a coordenadas del SVG
+      const touch = e.touches[0];
+      const mouseEvent = new MouseEvent("mousemove", {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+      });
+      svg.dispatchEvent(mouseEvent);
+    }
+  }, false);
